@@ -11,9 +11,12 @@ import (
 var secretKey = []byte("my_secret_key")
 
 func CreateToken(username string) (*fiber.Cookie, error) {
+
+	expireAt := time.Now().Add(time.Minute * 5)
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
-		"exp":      time.Now().Add(time.Second * 30).Unix(),
+		"exp":      expireAt.Unix(),
 	})
 
 	tokenString, err := token.SignedString(secretKey)
@@ -25,7 +28,7 @@ func CreateToken(username string) (*fiber.Cookie, error) {
 	cookie := fiber.Cookie{
 		Name:     "jwt",
 		Value:    tokenString,
-		Expires:  time.Now().Add(time.Second * 30),
+		Expires:  expireAt,
 		HTTPOnly: true,
 	}
 	return &cookie, nil
